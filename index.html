@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MUSE — The Creative Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f6fc;
+      --ink: #1d1830;
+      --ink-soft: #6c6380;
+      --lilac: #c9a6f2;
+      --pink: #f3a6d6;
+      --sky: #9fd3f5;
+      --mint: #8fe8d2;
+      --violet: #a987f0;
+      --white: #ffffff;
+      --cut: 22px;
+
+      /* per-card ink tints, sampled from the chip reference art */
+      --ink-violet: #3d2170;
+      --ink-pink: #8a2a63;
+      --ink-sky: #1f5f8b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------- ambient background ---------- */
+
+    .bg-blobs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: .38;
+      will-change: transform;
+    }
+
+    .blob-1 {
+      width: 46vw;
+      height: 46vw;
+      top: -12vw;
+      left: -10vw;
+      background: radial-gradient(circle at 30% 30%, var(--lilac), transparent 70%);
+      animation: drift-a 26s ease-in-out infinite;
+    }
+
+    .blob-2 {
+      width: 40vw;
+      height: 40vw;
+      top: 8vw;
+      right: -14vw;
+      background: radial-gradient(circle at 60% 40%, var(--sky), transparent 70%);
+      animation: drift-b 32s ease-in-out infinite;
+    }
+
+    .blob-3 {
+      width: 38vw;
+      height: 38vw;
+      bottom: -14vw;
+      left: 18vw;
+      background: radial-gradient(circle at 50% 50%, var(--mint), transparent 70%);
+      animation: drift-c 30s ease-in-out infinite;
+    }
+
+    .blob-4 {
+      width: 34vw;
+      height: 34vw;
+      bottom: 4vw;
+      right: 6vw;
+      background: radial-gradient(circle at 40% 60%, var(--pink), transparent 70%);
+      animation: drift-a 24s ease-in-out infinite reverse;
+    }
+
+    @keyframes drift-a {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(3vw, 4vw) scale(1.08);
+      }
+    }
+
+    @keyframes drift-b {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(-4vw, 3vw) scale(1.06);
+      }
+    }
+
+    @keyframes drift-c {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(2vw, -3vw) scale(1.1);
+      }
+    }
+
+    /* ---------- sparkles ---------- */
+
+    .sparkles {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .sparkle {
+      position: absolute;
+      color: var(--violet);
+      font-size: 1rem;
+      opacity: 0;
+      animation: twinkle 4.5s ease-in-out infinite;
+    }
+
+    .sparkle.sm {
+      font-size: .55rem;
+    }
+
+    .sparkle.lg {
+      font-size: 1.6rem;
+    }
+
+    @keyframes twinkle {
+
+      0%,
+      100% {
+        opacity: 0;
+        transform: scale(.6) rotate(0deg);
+      }
+
+      50% {
+        opacity: .8;
+        transform: scale(1) rotate(90deg);
+      }
+    }
+
+    @keyframes twinkle-drift {
+
+      0%,
+      100% {
+        opacity: 0;
+        transform: scale(.5) rotate(0deg) translateY(0);
+      }
+
+      45% {
+        opacity: .9;
+        transform: scale(1.05) rotate(70deg) translateY(-6px);
+      }
+
+      50% {
+        opacity: .95;
+        transform: scale(1) rotate(90deg) translateY(-8px);
+      }
+
+      55% {
+        opacity: .9;
+        transform: scale(1.05) rotate(110deg) translateY(-6px);
+      }
+    }
+
+    /* ---------- layout shells ---------- */
+
+    section {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ---------- hero ---------- */
+
+    .hero {
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8vh 6vw 6vh;
+    }
+
+    .hero-title {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-weight: 800;
+      font-size: clamp(3.6rem, 15vw, 9.5rem);
+      line-height: .92;
+      letter-spacing: -0.03em;
+      background: linear-gradient(100deg, var(--violet), var(--pink) 28%, var(--sky) 58%, var(--mint) 82%, var(--violet) 100%);
+      background-size: 320% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 34px rgba(169, 135, 240, .35));
+      animation: hero-in 1.1s cubic-bezier(.19, 1, .22, 1) both, shimmer 9s linear infinite 1.1s;
+    }
+
+    @keyframes hero-in {
+      0% {
+        opacity: 0;
+        transform: translateY(26px) scale(.96);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      100% {
+        background-position: 320% 50%;
+      }
+    }
+
+    .hero-sub {
+      margin-top: clamp(.6rem, 2vw, 1.1rem);
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      letter-spacing: .02em;
+      color: var(--ink-soft);
+      opacity: 0;
+      animation: fade-up .9s ease .55s both;
+    }
+
+    @keyframes fade-up {
+      0% {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ---------- faceted visual frame (hero image) ---------- */
+
+    .visual-frame {
+      position: relative;
+      display: inline-block;
+      padding: 3px;
+      clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0,
+          100% var(--cut), 100% calc(100% - var(--cut)),
+          calc(100% - var(--cut)) 100%, var(--cut) 100%,
+          0 calc(100% - var(--cut)), 0 var(--cut));
+      background: linear-gradient(135deg, var(--lilac), var(--pink) 35%, var(--sky) 65%, var(--mint));
+      box-shadow: 0 30px 70px -30px rgba(105, 70, 170, .35);
+    }
+
+    .visual-inner {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0,
+          100% var(--cut), 100% calc(100% - var(--cut)),
+          calc(100% - var(--cut)) 100%, var(--cut) 100%,
+          0 calc(100% - var(--cut)), 0 var(--cut));
+      background:
+        linear-gradient(155deg, rgba(255, 255, 255, .9), rgba(255, 255, 255, .5)),
+        radial-gradient(circle at 30% 20%, rgba(201, 166, 242, .5), transparent 55%),
+        radial-gradient(circle at 80% 80%, rgba(143, 232, 210, .45), transparent 55%),
+        var(--white);
+    }
+
+    .visual-img {
+      display: block;
+      max-width: min(92vw, 1200px);
+      max-height: 88vh;
+      width: auto;
+      height: auto;
+    }
+
+    .placeholder-mark {
+      display: none;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 2.4rem;
+      color: var(--violet);
+      opacity: .55;
+    }
+
+    .visual-inner.no-image {
+      min-width: 280px;
+      min-height: 350px;
+    }
+
+    .visual-inner.no-image .placeholder-mark {
+      display: flex;
+    }
+
+    .hero-visual {
+      margin-top: clamp(2.5rem, 6vw, 4rem);
+      opacity: 0;
+      animation: rise-in 1s cubic-bezier(.19, 1, .22, 1) .8s both;
+    }
+
+    @keyframes rise-in {
+      0% {
+        opacity: 0;
+        transform: translateY(36px) scale(.97);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* ---------- hero main card (featured spotlight card, width matches the 4-card grid) ---------- */
+
+    .hero-main-card {
+      position: relative;
+      width: min(1120px, 92vw);
+      margin: clamp(2.5rem, 6vw, 4rem) auto 0;
+      margin-bottom: 50px;
+      padding: 3px;
+      border-radius: 30px;
+      background: linear-gradient(115deg,
+          var(--violet), var(--pink) 22%, var(--sky) 44%, var(--mint) 66%, var(--lilac) 88%, var(--violet) 100%);
+      background-size: 320% 320%;
+      box-shadow: 0 40px 90px -34px rgba(105, 70, 170, .45);
+      opacity: 0;
+      animation:
+        hero-main-in 1s cubic-bezier(.19, 1, .22, 1) 1.05s both,
+        iridescent-shift 11s ease infinite 1.05s;
+    }
+
+    @keyframes hero-main-in {
+      0% {
+        opacity: 0;
+        transform: translateY(30px) scale(.98);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes iridescent-shift {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .hero-main-card-inner {
+      position: relative;
+      height: clamp(320px, 44vw, 460px);
+      border-radius: 27px;
+      overflow: hidden;
+    }
+
+    .hero-main-card-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(201, 166, 242, .6), transparent 52%),
+        radial-gradient(circle at 85% 25%, rgba(243, 166, 214, .55), transparent 52%),
+        radial-gradient(circle at 30% 90%, rgba(159, 211, 245, .55), transparent 52%),
+        radial-gradient(circle at 90% 85%, rgba(143, 232, 210, .55), transparent 52%),
+        linear-gradient(135deg, #fdfcff, #f2ebff);
+      background-size: 200% 200%, 200% 200%, 200% 200%, 200% 200%, 100% 100%;
+      animation: iridescent-bg-drift 13s ease-in-out infinite;
+    }
+
+    @keyframes iridescent-bg-drift {
+
+      0%,
+      100% {
+        background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%, 0 0;
+      }
+
+      50% {
+        background-position: 25% 30%, 75% 15%, 30% 80%, 80% 90%, 0 0;
+      }
+    }
+
+    .hero-main-card-sparkles {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .hero-main-card-scroll {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: clamp(1.75rem, 4vw, 2.75rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .hero-main-card-scroll::-webkit-scrollbar {
+      width: 7px;
+    }
+
+    .hero-main-card-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .hero-main-card-scroll::-webkit-scrollbar-thumb {
+      background: rgba(169, 135, 240, .42);
+      border-radius: 10px;
+    }
+
+    .hero-main-card-panel {
+      background: rgba(255, 255, 255, .74);
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      border: 1px solid rgba(255, 255, 255, .65);
+      border-radius: 18px;
+      padding: 1.35rem 1.6rem;
+      box-shadow: 0 18px 40px -26px rgba(105, 70, 170, .3);
+      text-align: left;
+    }
+
+    .hero-main-card-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: .72rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--violet);
+      margin-bottom: .45rem;
+    }
+
+    .hero-main-card-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .hero-main-card-text {
+      margin-top: .55rem;
+      font-family: 'Inter', sans-serif;
+      font-size: .92rem;
+      line-height: 1.6;
+      color: var(--ink-soft);
+    }
+
+    /* ---------- about section (chip-card style, matches reference art) ---------- */
+
+    .about {
+      padding: 12vh 6vw 14vh;
+    }
+
+    .about-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 1s cubic-bezier(.19, 1, .22, 1), transform 1s cubic-bezier(.19, 1, .22, 1);
+    }
+
+    .about-inner.in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .about-head {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto clamp(3rem, 6vw, 4.5rem);
+    }
+
+    .about-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.9rem, 4vw, 2.75rem);
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .about-sub {
+      margin-top: .85rem;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(.95rem, 1.6vw, 1.05rem);
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: clamp(1.5rem, 3vw, 2.25rem);
+    }
+
+    .chip-card {
+      padding: 3px;
+      clip-path: polygon(18px 0, calc(100% - 18px) 0,
+          100% 18px, 100% calc(100% - 18px),
+          calc(100% - 18px) 100%, 18px 100%,
+          0 calc(100% - 18px), 0 18px);
+      box-shadow: 0 24px 50px -28px rgba(105, 70, 170, .3);
+      cursor: pointer;
+      transition: transform .4s cubic-bezier(.19, 1, .22, 1), box-shadow .4s ease, opacity .3s ease;
+    }
+
+    .chip-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 30px 60px -26px rgba(105, 70, 170, .42);
+    }
+
+    .chip-card:focus-visible {
+      outline: 3px solid var(--violet);
+      outline-offset: 5px;
+    }
+
+    .chip-card.source-hidden {
+      opacity: 0;
+      pointer-events: none;
+      transition: none;
+    }
+
+    .chip-card {
+      background-size: 260% 260%;
+      animation: iridescent-shift 9s ease infinite;
+    }
+
+    .chip-card.tone-violet {
+      background-image: linear-gradient(150deg, var(--violet), var(--pink) 45%, var(--lilac) 80%, var(--violet));
+    }
+
+    .chip-card.tone-pink {
+      background-image: linear-gradient(150deg, var(--pink), var(--lilac) 45%, var(--sky) 80%, var(--pink));
+    }
+
+    .chip-card.tone-sky {
+      background-image: linear-gradient(150deg, var(--sky), var(--mint) 45%, var(--lilac) 80%, var(--sky));
+    }
+
+    .chip-card-inner {
+      position: relative;
+      height: 100%;
+      min-height: 148px;
+      clip-path: polygon(18px 0, calc(100% - 18px) 0,
+          100% 18px, 100% calc(100% - 18px),
+          calc(100% - 18px) 100%, 18px 100%,
+          0 calc(100% - 18px), 0 18px);
+      background:
+        linear-gradient(160deg, rgba(255, 255, 255, .94), rgba(255, 255, 255, .65)),
+        var(--white);
+      padding: 1.75rem 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      text-align: left;
+      overflow: hidden;
+    }
+
+    /* twinkling stars sitting inside each collapsed/expanded chip card, behind the text */
+    .card-stars {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .chip-icon,
+    .chip-title,
+    .chip-hint,
+    .chip-full {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* collapsed cards show only the icon + title; everything else lives in the expanded view */
+    .chip-full {
+      display: none;
+    }
+
+    .chip-hint {
+      margin-top: auto;
+      padding-top: .6rem;
+      font-family: 'Inter', sans-serif;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      opacity: .7;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+
+    .chip-hint::after {
+      content: '→';
+      font-size: .85rem;
+      transition: transform .3s cubic-bezier(.19, 1, .22, 1);
+    }
+
+    .chip-card:hover .chip-hint::after,
+    .chip-card:focus-visible .chip-hint::after {
+      transform: translateX(5px);
+    }
+
+    .chip-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: var(--white);
+    }
+
+    .tone-violet .chip-icon {
+      background: linear-gradient(135deg, var(--violet), var(--lilac));
+    }
+
+    .tone-pink .chip-icon {
+      background: linear-gradient(135deg, var(--pink), var(--lilac));
+    }
+
+    .tone-sky .chip-icon {
+      background: linear-gradient(135deg, var(--sky), var(--mint));
+    }
+
+    .chip-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.01em;
+    }
+
+    .tone-violet .chip-title {
+      color: var(--ink-violet);
+    }
+
+    .tone-pink .chip-title {
+      color: var(--ink-pink);
+    }
+
+    .tone-sky .chip-title {
+      color: var(--ink-sky);
+    }
+
+    .chip-desc {
+      font-size: .92rem;
+      color: var(--ink-soft);
+      line-height: 1.55;
+    }
+
+    .chip-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+      margin-top: .2rem;
+    }
+
+    .chip-list li {
+      font-size: .88rem;
+      color: var(--ink-soft);
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .chip-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: .5em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--violet);
+    }
+
+    .tone-pink .chip-list li::before {
+      background: var(--pink);
+    }
+
+    .tone-sky .chip-list li::before {
+      background: var(--sky);
+    }
+
+    .placeholder-text {
+      opacity: .6;
+      font-style: italic;
+    }
+
+    /* ---------- expanded card overlay ---------- */
+
+    html.no-scroll,
+    html.no-scroll body {
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .expand-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(21, 15, 38, .7);
+      backdrop-filter: blur(9px) saturate(115%);
+      -webkit-backdrop-filter: blur(9px) saturate(115%);
+      z-index: 80;
+      opacity: 0;
+      transition: opacity .5s ease;
+    }
+
+    .expand-backdrop.visible {
+      opacity: 1;
+    }
+
+    .expand-card {
+      position: fixed;
+      z-index: 81;
+      padding: 3px;
+      box-shadow: 0 50px 100px -30px rgba(18, 10, 42, .55);
+      clip-path: polygon(18px 0, calc(100% - 18px) 0,
+          100% 18px, 100% calc(100% - 18px),
+          calc(100% - 18px) 100%, 18px 100%,
+          0 calc(100% - 18px), 0 18px);
+      transition:
+        top .55s cubic-bezier(.19, 1, .22, 1),
+        left .55s cubic-bezier(.19, 1, .22, 1),
+        width .55s cubic-bezier(.19, 1, .22, 1),
+        height .55s cubic-bezier(.19, 1, .22, 1);
+    }
+
+    .expand-card-inner {
+      position: relative;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      clip-path: polygon(18px 0, calc(100% - 18px) 0,
+          100% 18px, 100% calc(100% - 18px),
+          calc(100% - 18px) 100%, 18px 100%,
+          0 calc(100% - 18px), 0 18px);
+      background:
+        linear-gradient(160deg, rgba(255, 255, 255, .97), rgba(255, 255, 255, .88)),
+        var(--white);
+    }
+
+    .expand-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 5;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(29, 24, 48, .08);
+      color: var(--ink);
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .25s ease, transform .35s cubic-bezier(.19, 1, .22, 1);
+    }
+
+    .expand-close:hover {
+      background: rgba(29, 24, 48, .16);
+      transform: rotate(90deg);
+    }
+
+    .expand-content-wrap {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .45s ease, transform .45s ease;
+    }
+
+    .expand-content-wrap.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .expand-left {
+      flex: 0 0 58%;
+      max-width: 58%;
+      padding: clamp(2rem, 4vw, 3rem) clamp(1.75rem, 3vw, 2.75rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      overflow-y: auto;
+    }
+
+    .expand-left::-webkit-scrollbar {
+      width: 7px;
+    }
+
+    .expand-left::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .expand-left::-webkit-scrollbar-thumb {
+      background: rgba(169, 135, 240, .38);
+      border-radius: 10px;
+    }
+
+    .expand-left .chip-icon {
+      width: 44px;
+      height: 44px;
+      font-size: 1.2rem;
+    }
+
+    .expand-left .chip-title {
+      font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+    }
+
+    .expand-left .chip-full {
+      display: contents;
+    }
+
+    .expand-divider {
+      flex: 0 0 1.5px;
+      align-self: stretch;
+      margin: clamp(1.75rem, 3vw, 2.5rem) 0;
+      background: linear-gradient(to bottom, transparent, rgba(105, 70, 170, .3), transparent);
+    }
+
+    .expand-right {
+      flex: 0 0 40%;
+      max-width: 40%;
+      padding: clamp(1.75rem, 3vw, 2.5rem) clamp(1.5rem, 3vw, 2.25rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      overflow-y: auto;
+    }
+
+    .media-slot {
+      flex: 0 0 auto;
+      height: clamp(120px, 22vh, 180px);
+      border-radius: 16px;
+      border: 1.5px dashed rgba(105, 70, 170, .35);
+      background:
+        linear-gradient(155deg, rgba(255, 255, 255, .9), rgba(255, 255, 255, .5)),
+        radial-gradient(circle at 30% 20%, rgba(201, 166, 242, .4), transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(143, 232, 210, .32), transparent 55%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: .85rem;
+      letter-spacing: .02em;
+      color: var(--ink-soft);
+      text-align: center;
+      overflow: hidden;
+      transition: transform .3s ease, border-color .3s ease;
+    }
+
+    .media-slot:hover {
+      transform: translateY(-3px);
+      border-color: rgba(105, 70, 170, .55);
+    }
+
+    .media-slot.has-image {
+      border-style: solid;
+      border-color: rgba(255, 255, 255, .7);
+      padding: 0;
+    }
+
+    .media-slot.has-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    @media (max-width: 780px) {
+      .expand-content-wrap {
+        flex-direction: column;
+      }
+
+      .expand-left,
+      .expand-right {
+        flex: 1 1 auto;
+        max-width: 100%;
+      }
+
+      .expand-divider {
+        flex: 0 0 1.5px;
+        width: auto;
+        align-self: stretch;
+        margin: 0;
+        background: linear-gradient(to right, transparent, rgba(105, 70, 170, .3), transparent);
+        height: 1.5px;
+      }
+
+      .expand-right {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .media-slot {
+        min-width: 90px;
+      }
+    }
+
+    /* ---------- reduced motion ---------- */
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+
+      .about-inner {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @media (max-width: 560px) {
+      :root {
+        --cut: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="bg-blobs" aria-hidden="true">
+    <span class="blob blob-1"></span>
+    <span class="blob blob-2"></span>
+    <span class="blob blob-3"></span>
+    <span class="blob blob-4"></span>
+  </div>
+
+  <div class="sparkles" aria-hidden="true">
+    <span class="sparkle" style="top:14%; left:12%; animation-delay:.2s; color:var(--violet);">✦</span>
+    <span class="sparkle sm"
+      style="top:22%; left:82%; animation-delay:1.4s; color:var(--pink); animation-duration:3.6s;">✧</span>
+    <span class="sparkle" style="top:68%; left:8%; animation-delay:2.1s; color:var(--sky);">✦</span>
+    <span class="sparkle lg"
+      style="top:78%; left:88%; animation-delay:.8s; color:var(--mint); animation-duration:5.5s;">✦</span>
+    <span class="sparkle sm" style="top:40%; left:92%; animation-delay:3s; color:var(--violet);">⋆</span>
+    <span class="sparkle" style="top:8%; left:50%; animation-delay:1.9s; color:var(--pink);">✦</span>
+    <span class="sparkle sm"
+      style="top:31%; left:6%; animation-delay:2.7s; color:var(--sky); animation-duration:4s;">✧</span>
+    <span class="sparkle" style="top:55%; left:46%; animation-delay:.5s; color:var(--mint);">⋆</span>
+    <span class="sparkle lg"
+      style="top:5%; left:78%; animation-delay:3.6s; color:var(--violet); animation-duration:6s;">✧</span>
+    <span class="sparkle sm" style="top:88%; left:34%; animation-delay:1.1s; color:var(--pink);">✦</span>
+    <span class="sparkle" style="top:62%; left:66%; animation-delay:2.4s; color:var(--sky);">✧</span>
+    <span class="sparkle sm"
+      style="top:47%; left:20%; animation-delay:4.2s; color:var(--mint); animation-duration:4.8s;">⋆</span>
+    <span class="sparkle" style="top:95%; left:60%; animation-delay:1.6s; color:var(--violet);">✦</span>
+    <span class="sparkle lg"
+      style="top:18%; left:35%; animation-delay:2.9s; color:var(--pink); animation-duration:5s;">⋆</span>
+    <span class="sparkle sm" style="top:73%; left:52%; animation-delay:.3s; color:var(--sky);">✧</span>
+    <span class="sparkle" style="top:3%; left:20%; animation-delay:3.3s; color:var(--mint);">✦</span>
+    <span class="sparkle sm"
+      style="top:85%; left:14%; animation-delay:1.8s; color:var(--violet); animation-duration:4.2s;">✧</span>
+    <span class="sparkle" style="top:58%; left:96%; animation-delay:2.6s; color:var(--pink);">⋆</span>
+  </div>
+
+  <section class="hero">
+    <h1 class="hero-title">MUSE</h1>
+    <p class="hero-sub">The Creative Companion</p>
+
+    <div class="hero-visual visual-frame">
+      <div class="visual-inner">
+        <img src="./images/bebe.png" alt="MUSE hero image" class="visual-img"
+          onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
+        <span class="placeholder-mark">✦</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="about">
+    <div class="about-inner" id="aboutInner">
+
+      <div class="about-head">
+        <h2 class="about-title placeholder-text">The invention of MUSE!</h2>
+        <p class="about-sub placeholder-text">All-in-one package for your creative needs!
+        </p>
+      </div>
+
+      <div class="hero-main-card">
+        <div class="hero-main-card-inner">
+          <div class="hero-main-card-bg" aria-hidden="true"></div>
+
+          <div class="hero-main-card-sparkles" aria-hidden="true">
+            <span class="sparkle" style="top:8%; left:10%; animation-delay:.2s; color:var(--violet);">✦</span>
+            <span class="sparkle sm"
+              style="top:14%; left:88%; animation-delay:1.5s; color:var(--pink); animation-duration:3.8s;">✧</span>
+            <span class="sparkle lg"
+              style="top:78%; left:6%; animation-delay:.9s; color:var(--mint); animation-duration:5.4s;">✦</span>
+            <span class="sparkle" style="top:85%; left:80%; animation-delay:2.3s; color:var(--sky);">✧</span>
+            <span class="sparkle sm"
+              style="top:46%; left:94%; animation-delay:3.1s; color:var(--violet); animation-duration:4.2s;">⋆</span>
+            <span class="sparkle sm" style="top:36%; left:4%; animation-delay:1.1s; color:var(--pink);">✦</span>
+            <span class="sparkle" style="top:60%; left:50%; animation-delay:2.8s; color:var(--mint);">⋆</span>
+            <span class="sparkle sm"
+              style="top:5%; left:55%; animation-delay:.6s; color:var(--sky); animation-duration:4.6s;">✧</span>
+          </div>
+
+          <div class="hero-main-card-scroll">
+            <div class="hero-main-card-panel">
+              <p class="hero-main-card-eyebrow">[ Spotlight ]</p>
+              <h2 class="hero-main-card-title">What is MUSE?</h2>
+              <p class="hero-main-card-text">MUSE (The Creative Companion) is a small, portable,
+                humanized AI robot designed to help people express, explore, and develop their creativity. MUSE combines
+                several creative technologies into one companion, including a digital sketch system, music pad, motion
+                sensors, camera, voice assistant, and creative AI. Instead of being designed as just another device or
+                tool, MUSE is meant to feel like a personalized creative companion that users can interact with and
+                bring wherever they go. MUSE can listen, talk, observe, learn the user's creative preferences, and help
+                transform simple ideas into different forms of art and creative projects.</p>
+            </div>
+
+            <div class="hero-main-card-panel">
+              <p class="hero-main-card-eyebrow">[ Highlight ]</p>
+              <p class="hero-main-card-text">It can help someone turn:
+              <ul class="hero-main-card-text">
+                <li>🎨 A sketch into digital artwork</li>
+                <li>🎵 A melody into music</li>
+                <li>💃 A movement into choreography or animation</li>
+                <li>📸 An image into creative inspiration</li>
+                <li>✍️ A simple idea into a story or project</li>
+              </ul>
+              <br>
+              MUSE can also gain additional advanced abilities through special MUSE Skill Chips, allowing users to
+              customize the skills their companion can use.</p>
+            </div>
+
+            <div class="about-grid">
+
+              <div class="chip-card tone-violet" data-no-media="true">
+                <div class="chip-card-inner">
+                  <div class="card-stars" aria-hidden="true">
+                    <span class="sparkle sm" style="top:10%; left:14%; animation-delay:.3s;">✦</span>
+                    <span class="sparkle sm"
+                      style="top:72%; left:84%; animation-delay:1.7s; color:var(--pink);">✧</span>
+                    <span class="sparkle"
+                      style="top:40%; left:92%; animation-delay:2.4s; color:var(--sky); font-size:.7rem;">⋆</span>
+                  </div>
+                  <span class="chip-icon">✦</span>
+                  <h3 class="chip-title">🎭 Personalize Your MUSE</h3>
+                  <span class="chip-hint">Tap to explore</span>
+                  <div class="chip-full">
+                    <p class="chip-desc">One of MUSE's biggest features is personalization. When users first receive
+                      their MUSE, they can customize how their companion looks and interacts.</p>
+                    <ul class="chip-list">
+                      <li>
+                        <strong>🤖 Choose MUSE's Identity Settings</strong>
+                        <p>Users can select how they would like MUSE to be referred to.</p>
+                        <ul class="chip-sublist">
+                          <li>
+                            <strong>💙 He/Him</strong>
+                            <ul class="chip-sublist">
+                              <li>MUSE's lights become blue</li>
+                              <li>The headphone symbol uses a five-pointed star design</li>
+                            </ul>
+                          </li>
+                          <li>
+                            <strong>🩷 She/Her</strong>
+                            <ul class="chip-sublist">
+                              <li>MUSE's lights become pink</li>
+                              <li>The headphone symbol uses a five-pointed star design</li>
+                            </ul>
+                          </li>
+                          <li>
+                            <strong>💜 They/Them</strong>
+                            <ul class="chip-sublist">
+                              <li>MUSE's lights become purple — also MUSE's original neutral color</li>
+                              <li>The headphone symbol uses a four-pointed star design</li>
+                            </ul>
+                          </li>
+                        </ul>
+                        <p>This allows each MUSE to feel more personal to its owner.</p>
+                      </li>
+                      <li>
+                        <strong>🏷️ Name Your MUSE</strong>
+                        <p>Every user can give their MUSE a name of their choice. For example, one person's MUSE could
+                          be named Luna, while another person's could be named Milo. The name becomes part of MUSE's
+                          personalized identity, making every MUSE feel different from another, even though they are
+                          part of the same product line.</p>
+                      </li>
+                      <li>
+                        <strong>🧠 Customize MUSE's Personality</strong>
+                        <p>Users can also customize aspects of MUSE's personality. For example, a user could make their
+                          MUSE more:</p>
+                        <ul class="chip-sublist">
+                          <li>Cheerful</li>
+                          <li>Calm</li>
+                          <li>Energetic</li>
+                          <li>Curious</li>
+                          <li>Playful</li>
+                          <li>Quiet</li>
+                          <li>Creative</li>
+                          <li>Organized</li>
+                        </ul>
+                        <p>This allows users to choose what kind of creative companion they would enjoy interacting
+                          with.</p>
+                      </li>
+                      <li>
+                        <strong>🤝 MUSE-to-MUSE Interaction Settings</strong>
+                        <p>If multiple people own MUSE robots, users can control how much their MUSE interacts with
+                          other MUSE units. For privacy and personal preference, users can choose interaction settings
+                          such as:</p>
+                        <ul class="chip-sublist">
+                          <li>Friendly interaction</li>
+                          <li>Neutral interaction</li>
+                          <li>Limited interaction</li>
+                          <li>No interaction</li>
+                        </ul>
+                        <p>This allows users to control their MUSE's connections and interactions with other MUSE
+                          companions.</p>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chip-card tone-pink" data-img1="./images/outfits.png" data-img2="./images/accessories.png"
+                data-img3="./images/hair.png">
+                <div class="chip-card-inner">
+                  <div class="card-stars" aria-hidden="true">
+                    <span class="sparkle sm" style="top:16%; left:88%; animation-delay:.6s; color:var(--pink);">✦</span>
+                    <span class="sparkle sm" style="top:78%; left:12%; animation-delay:2.1s;">⋆</span>
+                    <span class="sparkle"
+                      style="top:52%; left:6%; animation-delay:1.2s; color:var(--mint); font-size:.7rem;">✧</span>
+                  </div>
+                  <span class="chip-icon">✦</span>
+                  <h3 class="chip-title">🛍️ MUSE Customization Store</h3>
+                  <span class="chip-hint">Tap to explore</span>
+                  <div class="chip-full">
+                    <p class="chip-desc">Customization items can be purchased from RZNZ'S MUSE STORE ✨ — this is where
+                      users can personalize the appearance and abilities of their MUSE.</p>
+                    <ul class="chip-list">
+                      <li>
+                        <strong>💇 Magnetic Wigs</strong>
+                        <p>MUSE can have different magnetic wigs that can easily be attached and removed. Users can
+                          choose different:</p>
+                        <ul class="chip-sublist">
+                          <li>Hairstyles</li>
+                          <li>Hair lengths</li>
+                          <li>Hair colors</li>
+                          <li>Creative styles</li>
+                        </ul>
+                        <p>This means users can completely change the appearance of their MUSE whenever they want.</p>
+                      </li>
+                      <li>
+                        <strong>🎀 Accessories</strong>
+                        <p>Users can purchase accessories for their MUSE, such as:</p>
+                        <ul class="chip-sublist">
+                          <li>Hats</li>
+                          <li>Headphones</li>
+                          <li>Bags</li>
+                          <li>Hair accessories</li>
+                          <li>Decorative items</li>
+                          <li>Seasonal accessories</li>
+                        </ul>
+                        <p>This allows each MUSE to have its own unique style.</p>
+                      </li>
+                      <li>
+                        <strong>👕 Outfit Collections</strong>
+                        <p>MUSE can wear different clothing collections based on the user's preferred style. There can
+                          be:</p>
+                        <ul class="chip-sublist">
+                          <li>👗 Feminine-styled outfits</li>
+                          <li>👕 Masculine-styled outfits</li>
+                          <li>🧥 Neutral or unisex outfits</li>
+                          <li>🎃 Seasonal collections</li>
+                          <li>🎨 Artist-themed outfits</li>
+                          <li>🎵 Music-themed outfits</li>
+                        </ul>
+                        <p>The outfits help make MUSE feel even more customizable and collectible.</p>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chip-card tone-sky" data-img1="./images/chip_placement.png" data-img2="./images/chip_1.png"
+                data-img3="./images/chip_2.png">
+                <div class="chip-card-inner">
+                  <div class="card-stars" aria-hidden="true">
+                    <span class="sparkle sm" style="top:8%; left:60%; animation-delay:1.4s; color:var(--sky);">✧</span>
+                    <span class="sparkle sm" style="top:66%; left:90%; animation-delay:.4s;">✦</span>
+                    <span class="sparkle"
+                      style="top:80%; left:20%; animation-delay:2.6s; color:var(--pink); font-size:.7rem;">⋆</span>
+                  </div>
+                  <span class="chip-icon">✦</span>
+                  <h3 class="chip-title">💾 MUSE Skill Chips</h3>
+                  <span class="chip-hint">Tap to explore</span>
+                  <div class="chip-full">
+                    <p class="chip-desc">
+                      <strong>✨ What are MUSE Skill Chips?</strong><br>
+                      MUSE Skill Chips are special upgrade chips that give MUSE access to additional advanced creative
+                      abilities. MUSE already has its basic creative functions, but Skill Chips allow users to unlock
+                      more specialized features.
+                    </p>
+                    <p class="chip-desc">
+                      <strong>🔐 The Chip Compartment</strong><br>
+                      MUSE has a compact and discreet sliding chip compartment integrated into its body. From the
+                      outside, the compartment looks clean and minimal, similar to the sliding battery compartment found
+                      on some electronic devices. When opened, users can insert Skill Chips into the slots.
+                    </p>
+                    <p class="chip-desc">MUSE can use:</p>
+                    <ul class="chip-sublist">
+                      <li>💾 One Skill Chip</li>
+                      <li>💾💾 Two Skill Chips at the same time</li>
+                    </ul>
+                    <p class="chip-desc">This means users can combine different skills depending on what they are
+                      working on. For example, a 🎬 Director's Chip + ✍️ Writer's Chip combination could help a user
+                      develop a movie concept. Or a 💃 Dancer's Chip + 🎵 Musician's Chip combination could help a user
+                      create choreography for an original song.</p>
+                    <ul class="chip-list">
+                      <li>
+                        <strong>🎬 Director's Chip</strong>
+                        <p>Gives MUSE advanced knowledge related to filmmaking, directing, storyboarding, scene
+                          planning, camera concepts, and multimedia production. MUSE can help users develop their own:
+                        </p>
+                        <ul class="chip-sublist">
+                          <li>🎥 Movies</li>
+                          <li>📹 Videos</li>
+                          <li>🎬 Short films</li>
+                          <li>📖 Visual stories</li>
+                          <li>✨ Multimedia projects</li>
+                        </ul>
+                      </li>
+                      <li>
+                        <strong>✍️ Writer's Chip</strong>
+                        <p>Gives MUSE advanced creative writing abilities. It can help users create:</p>
+                        <ul class="chip-sublist">
+                          <li>Characters</li>
+                          <li>Stories</li>
+                          <li>Story worlds</li>
+                          <li>Concepts</li>
+                          <li>Character backgrounds</li>
+                          <li>Creative designs</li>
+                        </ul>
+                        <p>This chip is especially useful for people who enjoy storytelling and creating fictional
+                          worlds.</p>
+                      </li>
+                      <li>
+                        <strong>💃 Dancer's Chip</strong>
+                        <p>Gives MUSE advanced abilities related to dance and movement. It can help users:</p>
+                        <ul class="chip-sublist">
+                          <li>Create choreography</li>
+                          <li>Organize dance sequences</li>
+                          <li>Analyze movements</li>
+                          <li>Turn choreography into animated movement</li>
+                        </ul>
+                        <p>It can also unlock advanced movement functions that allow MUSE to dance alongside the user.
+                        </p>
+                      </li>
+                      <li>
+                        <strong>🎵 Musician's Chip</strong>
+                        <p>Gives MUSE advanced music-related abilities. It can help users:</p>
+                        <ul class="chip-sublist">
+                          <li>Develop song concepts</li>
+                          <li>Create melodies</li>
+                          <li>Organize musical ideas</li>
+                          <li>Understand basic composition</li>
+                          <li>Build songs from simple musical ideas</li>
+                        </ul>
+                        <p>This chip is designed for users who enjoy singing, songwriting, or creating music.</p>
+                      </li>
+                      <li>
+                        <strong>🎨 Artist's Chip</strong>
+                        <p>Gives MUSE advanced skills related to visual art. It can help users:</p>
+                        <ul class="chip-sublist">
+                          <li>Create character designs</li>
+                          <li>Explore different art styles</li>
+                          <li>Develop visual concepts</li>
+                          <li>Plan illustrations</li>
+                          <li>Create animation concepts</li>
+                        </ul>
+                        <p>This makes it especially useful for artists, designers, and creative students.</p>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chip-card tone-pink" data-no-media="true">
+                <div class="chip-card-inner">
+                  <div class="card-stars" aria-hidden="true">
+                    <span class="sparkle sm" style="top:20%; left:8%; animation-delay:1.9s; color:var(--mint);">⋆</span>
+                    <span class="sparkle sm"
+                      style="top:70%; left:70%; animation-delay:.8s; color:var(--violet);">✦</span>
+                    <span class="sparkle"
+                      style="top:12%; left:78%; animation-delay:2.9s; color:var(--sky); font-size:.7rem;">✧</span>
+                  </div>
+                  <span class="chip-icon">✦</span>
+                  <h3 class="chip-title">💡 Why MUSE Is Different</h3>
+                  <span class="chip-hint">Tap to explore</span>
+                  <div class="chip-full">
+                    <p class="chip-desc">What makes MUSE special is that it doesn't focus on just one type of
+                      creativity. Most creative tools are designed for only one purpose. For example, a drawing tablet
+                      is mainly for art, a music device is mainly for music, and a camera is mainly for photography. But
+                      MUSE connects different creative fields together.</p>
+                    <p class="chip-desc">An idea can begin as a:</p>
+                    <ul class="chip-sublist">
+                      <li>🎨 Drawing → become an animation</li>
+                      <li>🎵 Melody → become a song</li>
+                      <li>💃 Movement → become choreography</li>
+                      <li>📸 Photograph → become an artwork concept</li>
+                      <li>✍️ Story → become a movie idea</li>
+                    </ul>
+                    <p class="chip-desc">MUSE connects creativity across different forms of expression.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chip-card tone-violet" data-no-media="true">
+                <div class="chip-card-inner">
+                  <div class="card-stars" aria-hidden="true">
+                    <span class="sparkle sm" style="top:74%; left:16%; animation-delay:.5s; color:var(--pink);">✧</span>
+                    <span class="sparkle sm" style="top:14%; left:44%; animation-delay:1.6s;">⋆</span>
+                    <span class="sparkle"
+                      style="top:50%; left:88%; animation-delay:2.2s; color:var(--mint); font-size:.7rem;">✦</span>
+                  </div>
+                  <span class="chip-icon">✦</span>
+                  <h3 class="chip-title">🌟 Why I Would Invent MUSE</h3>
+                  <span class="chip-hint">Tap to explore</span>
+                  <div class="chip-full">
+                    <p class="chip-desc">I would invent MUSE — The Creative Companion because creativity does not always
+                      come from just one skill or one type of art. An idea can start from a drawing, a song, a dance
+                      movement, a photograph, or even a simple thought. However, these creative ideas can sometimes be
+                      difficult to organize or develop.</p>
+                    <p class="chip-desc">MUSE would help people connect their different creative skills and transform
+                      simple ideas into bigger projects. I chose this invention because it connects many of the creative
+                      fields that I am personally interested in, such as drawing, music, dancing, photography,
+                      storytelling, filmmaking, and creative design.</p>
+                    <p class="chip-desc">Instead of replacing human creativity, MUSE is designed to support and inspire
+                      it.</p>
+                    <p class="chip-desc"><strong>✨ MUSE doesn't create your imagination for you — it helps you bring it
+                        to life.</strong></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <script>
+    // Reveal the about section once, when it enters the viewport.
+    const aboutInner = document.getElementById('aboutInner');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    observer.observe(aboutInner);
+
+    // ---------- expandable chip cards ----------
+
+    let activeCard = null;
+    let activeOverlay = null;
+
+    function mediaSlotsHTML(card) {
+      return [1, 2, 3].map(n => {
+        const src = card.dataset[`img${n}`];
+        return src
+          ? `<div class="media-slot has-image"><img src="${src}" alt="" loading="lazy"></div>`
+          : `<div class="media-slot">Image ${n}</div>`;
+      }).join('');
+    }
+
+    function buildExpandCard(card) {
+      const tone = [...card.classList].find(c => c.startsWith('tone-')) || 'tone-violet';
+      const icon = card.querySelector('.chip-icon').innerHTML;
+      const title = card.querySelector('.chip-title').innerHTML;
+      const full = card.querySelector('.chip-full').innerHTML;
+      const noMedia = card.dataset.noMedia === 'true';
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'expand-backdrop';
+
+      const expand = document.createElement('div');
+      expand.className = `expand-card ${tone}`;
+      expand.setAttribute('role', 'dialog');
+      expand.setAttribute('aria-modal', 'true');
+      expand.innerHTML = `
+        <div class="expand-card-inner">
+          <button type="button" class="expand-close" aria-label="Close">✕</button>
+          <div class="expand-content-wrap${noMedia ? ' no-media' : ''}">
+            <div class="expand-left">
+              <span class="chip-icon">${icon}</span>
+              <h3 class="chip-title">${title}</h3>
+              <div class="chip-full">${full}</div>
+            </div>
+            ${noMedia ? '' : `
+            <div class="expand-divider"></div>
+            <div class="expand-right">
+              ${mediaSlotsHTML(card)}
+            </div>`}
+          </div>
+        </div>
+      `;
+
+      return { backdrop, expand };
+    }
+
+    function targetRect() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const width = Math.min(vw * 0.92, 1020);
+      const height = Math.min(vh * 0.86, 660);
+      return {
+        width, height,
+        top: (vh - height) / 2,
+        left: (vw - width) / 2
+      };
+    }
+
+    function applyRect(el, rect) {
+      el.style.top = rect.top + 'px';
+      el.style.left = rect.left + 'px';
+      el.style.width = rect.width + 'px';
+      el.style.height = rect.height + 'px';
+    }
+
+    function openCard(card) {
+      if (activeCard) return;
+      activeCard = card;
+
+      const startRect = card.getBoundingClientRect();
+      const { backdrop, expand } = buildExpandCard(card);
+
+      document.body.appendChild(backdrop);
+      document.body.appendChild(expand);
+      activeOverlay = { backdrop, expand };
+
+      applyRect(expand, startRect);
+      card.classList.add('source-hidden');
+      document.documentElement.classList.add('no-scroll');
+
+      // force reflow so the browser registers the starting rect before we animate
+      void expand.offsetWidth;
+
+      requestAnimationFrame(() => {
+        backdrop.classList.add('visible');
+        applyRect(expand, targetRect());
+      });
+
+      const revealContent = (e) => {
+        if (e && e.propertyName !== 'width') return;
+        expand.removeEventListener('transitionend', revealContent);
+        expand.querySelector('.expand-content-wrap').classList.add('visible');
+      };
+      expand.addEventListener('transitionend', revealContent);
+
+      expand.querySelector('.expand-close').addEventListener('click', closeCard);
+      backdrop.addEventListener('click', closeCard);
+    }
+
+    function closeCard() {
+      if (!activeCard || !activeOverlay) return;
+      const { backdrop, expand } = activeOverlay;
+      const cardToRestore = activeCard;
+
+      expand.querySelector('.expand-content-wrap').classList.remove('visible');
+      backdrop.classList.remove('visible');
+
+      const endRect = cardToRestore.getBoundingClientRect();
+      requestAnimationFrame(() => applyRect(expand, endRect));
+
+      let done = false;
+      const cleanup = (e) => {
+        if (done) return;
+        if (e && e.propertyName !== 'width') return;
+        done = true;
+        expand.removeEventListener('transitionend', cleanup);
+        backdrop.remove();
+        expand.remove();
+        cardToRestore.classList.remove('source-hidden');
+        document.documentElement.classList.remove('no-scroll');
+      };
+      expand.addEventListener('transitionend', cleanup);
+      setTimeout(cleanup, 650);
+
+      activeCard = null;
+      activeOverlay = null;
+    }
+
+    document.querySelectorAll('.chip-card').forEach(card => {
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-expanded', 'false');
+      card.addEventListener('click', () => openCard(card));
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openCard(card);
+        }
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeCard();
+    });
+  </script>
+
+</body>
+
+</html>
